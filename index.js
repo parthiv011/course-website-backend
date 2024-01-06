@@ -1,14 +1,13 @@
 const express = require('express');
-const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
+const dotenv = require('dotenv').config();
 
 const adminRouter = require('./routes/admin');
 const userRouter = require('./routes/user');
 
 const app = express();
 
-const port = 3000;
+const port = process.env.PORT;
 
 app.use(bodyParser.json());
 

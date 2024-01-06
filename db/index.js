@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
+const dotenv = require('dotenv').config();
 
-mongoose.connect('mongodb+srv://cbing2111:cbing1234@cluster0.lnqzwby.mongodb.net/course_selling_app');
+
+mongoose.connect(process.env.MONGODB_URL);
 
 const AdminSchema = new mongoose.Schema({
     username:String,
