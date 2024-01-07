@@ -2,19 +2,31 @@ const { Router } = require('express');
 const router = Router();
 const userMiddleware = require('../middlewares/user');
 const { User, Course } = require('../db');
+const { z } = require('zod');
+
+// zod Validations for users
+const userSchema = z.object({
+  username: z.string().email(),
+  password: z.string().min(6)
+})
 
 // user routes
-router.post('/signup', (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
+router.post('/signup', async (req, res) => {
+  try {
+    const {username, password} = userSchema.parse(req.body);
 
-  User.create({
-    username,
-    password,
-  });
-  res.json({
-    msg: 'User created Successfully!',
-  });
+    await User.create({
+      username,
+      password,
+    });
+    res.json({
+      msg: 'User created Successfully!',
+    });
+  } catch (e) {
+    res.status(400).json({
+      msg: 'Inputs are not correct!',
+    });
+  }
 });
 
 router.get('/courses', async (req, res) => {
