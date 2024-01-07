@@ -3,6 +3,8 @@ const adminMiddleware = require('../middlewares/admin');
 const { Admin, Course } = require('../db');
 const router = Router();
 const { z } = require('zod');
+const jwt = require('jsonwebtoken');
+const { secret } = require('../config');
 
 // zod Validations
 const adminSignupSchema = z.object({
@@ -32,6 +34,37 @@ router.post('/signup', async (req, res) => {
   } catch (e) {
     res.status(400).json({
       msg: 'Inputs are not correct!',
+    });
+  }
+});
+
+router.post('/signin', async (req, res) => {
+  const { username, password } = adminSignupSchema.parse(req.body);
+  try {
+    const user = await Admin.find({
+      username,
+      password,
+    });
+    if (user.length > 0) {
+      const token = jwt.sign(
+        {
+          username,
+        },
+        secret
+      );
+
+      res.json({
+        token,
+      });
+    } else {
+      res.status(411).json({
+        msg: 'Admin doesnt exists!',
+      });
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      msg: 'Internal Server Error',
     });
   }
 });

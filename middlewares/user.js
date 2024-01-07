@@ -1,22 +1,27 @@
-const { User } = require('../db');
+const jwt = require('jsonwebtoken');
+const { secret } = require('../config');
+
 
 function userMiddleware(req, res, next) {
-  const username = req.headers.username;
-  const password = req.headers.password;
+  const token = req.headers.authorization;
+  const splitter = token.split(' ');
+  const jwtToken = splitter[1];
 
-  User.findOne({
-    username: username,
-    password: password,
-  })
-  .then(function (value) {
-    if (value) {
+  try {
+    const decodedValue = jwt.verify(jwtToken, secret);
+    if (decodedValue.username) {
       next();
     } else {
       res.status(403).json({
-        msg: 'User doesnt exists!',
+        msg: 'You are not authenticated as User!',
       });
     }
-  });
+  } catch (e) {
+    res.json({
+      msg: 'Incorrect inputs!',
+      error: e,
+    });
+  }
 }
 
 module.exports = userMiddleware;
