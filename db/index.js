@@ -1,36 +1,18 @@
 const mongoose = require('mongoose');
-const dotenv = require('dotenv').config();
+const dotenv = require('dotenv')
+dotenv.config();
 
+const MongoUrl = process.env.MONGODB_URL;
 
-mongoose.connect(process.env.MONGODB_URL);
-
-const AdminSchema = new mongoose.Schema({
-    username:String,
-    password:String
-});
-
-const userSchema = new mongoose.Schema({
-    username:String,
-    password:String,
-    purchasedCourses: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Course'
-    }]
-});
-
-const courseSchema = new mongoose.Schema({
-    title: String,
-    description: String, 
-    imageLink: String,
-    price: Number
-});
-
-const Admin =  mongoose.model('Admin', AdminSchema);
-const User = mongoose.model('User', userSchema);
-const Course = mongoose.model('Course', courseSchema);
-
-module.exports = {
-    Admin, 
-    User, 
-    Course
+const connectMongoDB = async () => {
+    try {
+        await mongoose.connect(MongoUrl);
+        console.log("Database connected!");
+    } catch (e){
+        console.error("Internal Database Error");
+    }
 }
+
+connectMongoDB();
+
+module.exports = { connectMongoDB };
