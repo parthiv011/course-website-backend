@@ -2,23 +2,26 @@ const { z } = require('zod');
 const { User, Course } = require('../models/models');
 const jwt = require('jsonwebtoken');
 const { secret } = require('../config');
-
-// zod Validations for users
-const userSchema = z.object({
-  username: z.string().email(),
-  password: z.string().min(6),
-});
+const { userSignupSchema } = require('./validators');
 
 const signUp = async (req, res) => {
   try {
-    const { username, password } = userSchema.parse(req.body);
+    const { username, password } = userSignupSchema.parse(req.body);
+
+    const user = await User.findOne({username});
+    if(user) {
+      return res.status(409).json({
+        msg:"User already exists!"
+      });
+    }
 
     await User.create({
       username,
       password,
     });
-    res.json({
-      msg: 'User created Successfully!',
+
+    res.status(200).json({
+        msg: 'User created Successfully!',
     });
   } catch (e) {
     res.status(400).json({
@@ -28,13 +31,13 @@ const signUp = async (req, res) => {
 };
 
 const signIn = async (req, res) => {
-  const { username, password } = userSchema.parse(req.body);
+  const { username, password } = userSignupSchema.parse(req.body);
   try {
     const user = await User.find({
       username,
       password,
     });
-    if (user.length > 0) {
+    if (user) {
       const token = jwt.sign(
         {
           username,

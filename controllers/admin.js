@@ -1,25 +1,19 @@
 const { z } = require('zod');
-const { Admin, Course } = require('../models/models');
+const { Admin, Course, User, Instructor } = require('../models/models');
 const jwt = require('jsonwebtoken');
 const { secret } = require('../config');
-
-// zod Validations
-const adminSignupSchema = z.object({
-  username: z.string().email(),
-  password: z.string().min(6),
-});
-
-const addCoursesSchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  imageLink: z.string(),
-  price: z.number(),
-});
+const { userSignupSchema, addCoursesSchema } = require('./validators');
 
 const signUp = async (req, res) => {
   try {
-    const { username, password } = adminSignupSchema.parse(req.body);
+    const { username, password } = userSignupSchema.parse(req.body);
+    const admin = await Admin.findOne({username});
 
+    if(admin){
+      return res.status(409).json({
+        msg: "Admin already exists!"
+      });
+    }
     await Admin.create({
       username: username,
       password: password,
@@ -35,13 +29,13 @@ const signUp = async (req, res) => {
 };
 
 const signIn = async (req, res) => {
-  const { username, password } = adminSignupSchema.parse(req.body);
+  const { username, password } = userSignupSchema.parse(req.body);
   try {
-    const user = await Admin.find({
+    const admin = await Admin.find({
       username,
       password,
     });
-    if (user.length > 0) {
+    if (admin) {
       const token = jwt.sign(
         {
           username,
@@ -54,7 +48,7 @@ const signIn = async (req, res) => {
       });
     } else {
       res.status(411).json({
-        msg: 'Admin doesnt exists!',
+        msg: 'Invalid Credentials for Admin!',
       });
     }
   } catch (e) {
@@ -94,6 +88,23 @@ const showCourses = async (req, res) => {
     courses: allCourses,
   });
 };
+
+const allUserData = async (req, res) => {
+  try {
+    const allUsers = await User.find({});
+    const allInstructors = await Instructor.find({});
+
+    res.status(200).json({
+      users: allUsers,
+      instructors: allInstructors
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({
+      msg: "Internal Server Error!"
+    })
+  }
+}
 
 module.exports = {
   signUp,
