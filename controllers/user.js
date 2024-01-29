@@ -33,7 +33,7 @@ const signUp = async (req, res) => {
 const signIn = async (req, res) => {
   const { username, password } = userSignupSchema.parse(req.body);
   try {
-    const user = await User.find({
+    const user = await User.findOne({
       username,
       password,
     });

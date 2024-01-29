@@ -110,5 +110,6 @@ module.exports = {
   signUp,
   signIn,
   postCourses,
-  showCourses
+  showCourses,
+  allUserData
 }
