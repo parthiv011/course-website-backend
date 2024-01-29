@@ -31,7 +31,7 @@ const signUp = async (req, res) => {
 const signIn = async (req, res) => {
   const { username, password } = userSignupSchema.parse(req.body);
   try {
-    const admin = await Admin.find({
+    const admin = await Admin.findOne({
       username,
       password,
     });
@@ -61,7 +61,7 @@ const signIn = async (req, res) => {
 
 const postCourses = async (req, res) => {
   try {
-    const { title, description, imageLink, price } = addCoursesSchema.parse(
+    const { title, description, imageLink, price, instructor } = addCoursesSchema.parse(
       req.body
     );
 
@@ -70,15 +70,17 @@ const postCourses = async (req, res) => {
       description,
       imageLink,
       price,
+      instructor,
     });
     res.json({
       msg: 'Course added Successfully!',
       courseId: addCourse._id,
     });
   } catch (e) {
-    res.status(400).json({
-      msg: 'Course Schema not matched!',
-    });
+    console.error(e);
+    res.status(500).json({
+      msg: "Failed to add course!"
+    })
   }
 };
 

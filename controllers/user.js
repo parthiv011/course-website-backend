@@ -103,10 +103,27 @@ const showPurchasedCourses = async (req, res) => {
   });
 };
 
+const userDashboard = async (req, res) => {
+  try
+  {
+    const userData = await User.findOne({ username: req.headers.username });
+    res.json({
+      userData
+    });
+  }
+  catch (e){
+    console.error(e);
+    res.status(500).json({
+      msg: "Internal Server Error!"
+    })
+  }
+}
+
 module.exports = {
   signUp,
   signIn,
   showCourses,
   purchaseCourse,
-  showPurchasedCourses
+  showPurchasedCourses,
+  userDashboard
 }

@@ -2,13 +2,27 @@ const db = require('../db/index');
 const mongoose = require('mongoose');
 
 const AdminSchema = new mongoose.Schema({
-  username:String,
-  password:String
+  username: {
+    type: String,
+    unique: true,
+    required: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
 });
 
 const userSchema = new mongoose.Schema({
-  username:String,
-  password:String,
+  username: {
+    type: String,
+    unique: true,
+    required: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
   purchasedCourses: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Course'
@@ -20,16 +34,23 @@ const courseSchema = new mongoose.Schema({
   description: String,
   imageLink: String,
   price: Number,
-  instructor:[{
-    type: mongoose.Schema.Types.ObjectId,
+  instructor:{
+    type: mongoose.Schema.Types.String,
     ref:'Instructor',
-  }]
+  }
 });
 
 const instructorSchema = new mongoose.Schema({
   name: String,
-  username: String,
-  password:String,
+  username: {
+  type: String,
+    unique: true,
+    required: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
   specialization:String,
 })
 

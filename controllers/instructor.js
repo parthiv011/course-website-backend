@@ -1,5 +1,5 @@
-const { userSignupSchema } = require('./validators');
-const { Instructor } = require('../models/models');
+const { userSignupSchema, instructorAddCourseSchema, addCoursesSchema } = require('./validators');
+const { Instructor, Course } = require('../models/models');
 const jwt = require('jsonwebtoken');
 const { secret } = require('../config');
 
@@ -60,7 +60,65 @@ const signIn = async (req, res) => {
   }
 }
 
+const postCourses = async (req, res) => {
+  try {
+    const instructorUsername = req.headers.username;
+
+    const { title, description, imageLink, price } = instructorAddCourseSchema.parse(
+      req.body
+    );
+
+
+
+    const addCourse = await Course.create({
+      title,
+      description,
+      imageLink,
+      price,
+      instructor: instructorUsername,
+    });
+    res.json({
+      msg: 'Course added Successfully!',
+      courseId: addCourse._id,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({
+      msg: "Failed to add course!"
+    })
+  }
+};
+
+const showCourses = async (req, res) => {
+  try
+  {
+    const instructorUsername = req.headers.username;
+
+    const instructor = await Instructor.findOne({ username: instructorUsername });
+
+    if (!instructor) {
+      return res.status(404).json({
+        msg: "Instructor not found!"
+      });
+    }
+    console.log(instructor);
+    const instructorCourses = await Course.find({instructor: instructor.username});
+    console.log(instructorCourses);
+    res.json({
+      courses: instructorCourses
+    });
+  }
+  catch (e){
+    console.error(e);
+    res.status(500).json({
+      msg: 'Failed to fetch courses!',
+    });
+  }
+};
+
 module.exports = {
   signUp,
-  signIn
+  signIn,
+  postCourses,
+  showCourses
 }
